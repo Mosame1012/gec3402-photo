@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEC 影集2 - 摄影作品集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: #fafafa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 封面页样式 */
+        #cover-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #e8e8e3 0%, #f0f0eb 50%, #f5f5f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        #cover-page.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .cover-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .decoration-pattern {
+            position: absolute;
+            opacity: 0.15;
+        }
+
+        .pattern-1 {
+            top: 10%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #666;
+            transform: rotate(45deg);
+        }
+
+        .pattern-2 {
+            bottom: 15%;
+            right: 15%;
+            width: 150px;
+            height: 150px;
+            border: 2px solid #666;
+            border-radius: 50%;
+        }
+
+        .pattern-3 {
+            top: 50%;
+            left: 5%;
+            width: 100px;
+            height: 300px;
+            border-left: 1px solid #999;
+        }
+
+        .pattern-4 {
+            top: 20%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            border: 1px solid #999;
+            transform: rotate(45deg);
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 1200px;
+            padding: 0 40px;
+            display: flex;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .cover-info {
+            flex: 1;
+            text-align: left;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .cover-info h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #2c2c2c;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .cover-info p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .cover-main {
+            flex: 1.5;
+            text-align: center;
+        }
+
+        .cover-title {
+            font-size: 4em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            letter-spacing: 8px;
+            color: #2c2c2c;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .cover-subtitle {
+            font-size: 1.5em;
+            margin-bottom: 60px;
+            color: #666;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        .enter-btn {
+            padding: 20px 60px;
+            font-size: 1.3em;
+            background: transparent;
+            border: 2px solid #666;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #333;
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .enter-btn:hover {
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .enter-btn:hover::before {
+            left: 0;
+        }
+
+        /* 目录页样式 */
+        #toc-page {
+            min-height: 100vh;
+            padding: 100px 60px;
+            background: linear-gradient(180deg, #fafafa 0%, #f5f5f0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .toc-header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .toc-header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .toc-title {
+            font-size: 3em;
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-align: left;
+            color: #2c2c2c;
+        }
+
+        .toc-list {
+            list-style: none;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 80px;
+        }
+
+        .toc-item {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .toc-item:nth-child(1) { animation-delay: 0.1s; }
+        .toc-item:nth-child(2) { animation-delay: 0.2s; }
+        .toc-item:nth-child(3) { animation-delay: 0.3s; }
+        .toc-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toc-link {
+            display: block;
+            padding: 25px 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 4px solid #999;
+            color: #333;
+            text-decoration: none;
+            font-size: 1.4em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .toc-link:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateX(20px);
+            border-left-color: #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .enter-gallery-btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            background: transparent;
+            border: 2px solid #666;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            letter-spacing: 2px;
+            margin: 0;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+
+        .enter-gallery-btn:hover {
+            background: #333;
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-to-cover-btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            background: transparent;
+            border: 2px solid #666;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            letter-spacing: 2px;
+            margin: 0;
+            margin-right: 15px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+
+        .back-to-cover-btn:hover {
+            background: #333;
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 相册页样式 */
+        #gallery-page {
+            background: #fafafa;
+            position: relative;
+        }
+
+        /* 返回按钮 */
+        .back-to-toc {
+            position: fixed;
+            top: 30px;
+            left: 20px;
+            z-index: 501;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #333;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        #gallery-page ~ .back-to-toc,
+        #gallery-page .back-to-toc {
+            display: flex;
+        }
+
+        .back-to-toc:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .back-to-toc::before {
+            content: '←';
+            font-size: 18px;
+        }
+
+        /* 左侧悬浮导航栏 */
+        .floating-nav {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 500;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            display: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        #gallery-page .floating-nav {
+            display: block;
+        }
+
+        .floating-nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .floating-nav-item {
+            position: relative;
+        }
+
+        .floating-nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .floating-nav-link:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+            transform: translateX(5px);
+        }
+
+        .floating-nav-link.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .floating-nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: #667eea;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .gallery-section {
+            min-height: 100vh;
+            padding: 80px 60px 80px 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-page {
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 100px;
+        }
+
+        /* 主题标题样式 */
+        .theme-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 60px;
+            letter-spacing: 4px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            position: relative;
+        }
+
+        .theme-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: #667eea;
+        }
+
+        /* 单张照片布局 */
+        .single-photo {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .single-photo img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .single-photo img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 两张照片紧凑上下布局 */
+        .double-photo-vertical-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .double-photo-vertical-compact .photo-item-wrapper {
+            width: 100%;
+        }
+
+        .double-photo-vertical-compact img {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .double-photo-vertical-compact img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 特殊布局：大图居左，两张小图居右上右下 */
+        .special-layout-3 {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 0;
+        }
+
+        .special-layout-3 .photo-large {
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .special-layout-3 .photo-small {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .special-layout-3 img {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .special-layout-3 img:hover {
+            transform: scale(1.05);
+        }
+
+
+        /* 图片描述样式 */
+        .photo-caption {
+            margin-top: 20px;
+            font-size: 0.95em;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 900px;
+            font-style: italic;
+        }
+
+        .photo-item-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .double-photo-vertical .photo-item-wrapper {
+            margin-bottom: 40px;
+        }
+
+        .double-photo-vertical .photo-item-wrapper:last-child {
+            margin-bottom: 0;
+        }
+
+        .masonry-item-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .masonry-item-wrapper .photo-caption {
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+
+        /* 两张照片上下布局 */
+        .double-photo-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* 上下对比布局 - 间距较小 */
+        .double-photo-vertical.compact {
+            gap: 15px;
+        }
+
+        .double-photo-vertical img {
+            max-width: 100%;
+            max-height: 45vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .double-photo-vertical img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 两张照片横向并列布局 */
+        .double-photo-horizontal {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .double-photo-horizontal .photo-item-wrapper {
+            flex: 1;
+            min-width: 300px;
+            max-width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .double-photo-horizontal img {
+            max-width: 100%;
+            max-height: 60vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .double-photo-horizontal img:hover {
+            transform: scale(1.05);
+        }
+
+        .masonry-item-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .masonry-item-wrapper .photo-caption {
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+
+        /* 多张正方形照片错落布局 */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            padding: 40px 0;
+        }
+
+        .masonry-grid-shared-caption {
+            grid-column: 2 / -2;
+            margin-top: 30px;
+            text-align: center;
+            justify-self: center;
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid-shared-caption {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .masonry-item {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease;
+        }
+
+        .masonry-item:hover {
+            transform: scale(1.05);
+        }
+
+        .masonry-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .masonry-item-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .masonry-item-wrapper .photo-caption {
+            margin-top: 10px;
+            font-size: 0.85em;
+            max-width: 200px;
+        }
+
+        .masonry-grid-shared-caption {
+            grid-column: 2 / -2;
+            margin-top: 30px;
+            text-align: center;
+            justify-self: center;
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid-shared-caption {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .cover-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .cover-title {
+                font-size: 2.5em;
+            }
+
+            .toc-title {
+                font-size: 2em;
+            }
+
+            .masonry-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+            }
+
+            .floating-nav {
+                left: 10px;
+                padding: 15px 10px;
+            }
+
+            .floating-nav-link {
+                font-size: 12px;
+                padding: 10px 15px;
+            }
+
+            .gallery-section {
+                padding: 80px 20px 80px 200px;
+            }
+
+            .theme-title {
+                font-size: 2em;
+                letter-spacing: 3px;
+            }
+
+            .double-photo-horizontal {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .double-photo-horizontal .photo-item-wrapper {
+                max-width: 100%;
+            }
+
+            .special-layout-3 {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .special-layout-3 .photo-large {
+                grid-row: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cover-title {
+                font-size: 2em;
+                letter-spacing: 4px;
+            }
+
+            .cover-subtitle {
+                font-size: 1.2em;
+            }
+
+            .cover-info {
+                padding: 30px;
+            }
+
+            .toc-link {
+                font-size: 1.1em;
+                padding: 20px 30px;
+            }
+
+            .toc-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .toc-header-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+
+            .back-to-cover-btn,
+            .enter-gallery-btn {
+                align-self: flex-start;
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .gallery-section {
+                padding: 40px 20px 40px 180px;
+            }
+
+            .masonry-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+
+            .floating-nav {
+                left: 5px;
+                padding: 10px 8px;
+            }
+
+            .floating-nav-link {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+
+            .back-to-toc {
+                top: 20px;
+                left: 10px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .theme-title {
+                font-size: 1.8em;
+                letter-spacing: 2px;
+                margin-bottom: 40px;
+            }
+
+            .double-photo-horizontal {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .double-photo-horizontal .photo-item-wrapper {
+                max-width: 100%;
+                min-width: auto;
+            }
+
+            .special-layout-3 {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 15px;
+            }
+
+            .special-layout-3 .photo-large {
+                grid-row: auto;
+            }
+        }
+
+        /* 图片放大查看模态框 */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s ease;
+            cursor: default;
+            display: block !important;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 图片放大查看模态框 -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <img id="modalImage" class="image-modal-content" src="" alt="放大图片">
+    </div>
+
+    <!-- 封面页 -->
+    <div id="cover-page">
+        <div class="cover-decoration">
+            <div class="decoration-pattern pattern-1"></div>
+            <div class="decoration-pattern pattern-2"></div>
+            <div class="decoration-pattern pattern-3"></div>
+            <div class="decoration-pattern pattern-4"></div>
+        </div>
+        <div class="cover-content">
+            <div class="cover-info">
+                <h2>小组成员</h2>
+                <p>钟屹 122090813</p>
+                <p>樊宇琦 123020091</p>
+                <p>张谷琦 122050031</p>
+                <p>张泽华 122020281</p>
+            </div>
+            <div class="cover-main">
+                <h1 class="cover-title">城市的速度、权力与人的尺度</h1>
+                <p class="cover-subtitle">摄影作品集</p>
+                <button class="enter-btn" onclick="enterGallery()">进入影集</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 目录页 -->
+    <div id="toc-page" style="display: none;">
+        <div class="toc-header">
+            <h2 class="toc-title">作品目录</h2>
+            <div class="toc-header-buttons">
+                <button class="back-to-cover-btn" onclick="backToCover()">返回封面</button>
+                <button class="enter-gallery-btn" onclick="scrollToGallery()">进入相册</button>
+            </div>
+        </div>
+        <ul class="toc-list">
+            <li class="toc-item">
+                <a href="#theme1" class="toc-link" onclick="scrollToTheme('theme1'); return false;">
+                    前言：今昔发展
+                </a>
+            </li>
+            <li class="toc-item">
+                <a href="#theme2" class="toc-link" onclick="scrollToTheme('theme2'); return false;">
+                    主题一：城市化出现的道路交通问题
+                </a>
+            </li>
+            <li class="toc-item">
+                <a href="#theme3" class="toc-link" onclick="scrollToTheme('theme3'); return false;">
+                    主题二：城市景观的空间割裂现象
+                </a>
+            </li>
+            <li class="toc-item">
+                <a href="#theme4" class="toc-link" onclick="scrollToTheme('theme4'); return false;">
+                    主题三：底层劳动者的居住现实——于夹缝之地求存
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 相册页 -->
+    <div id="gallery-page" style="display: none;">
+        <!-- 返回按钮 -->
+        <a href="#" class="back-to-toc" onclick="backToToc(); return false;">返回目录</a>
+
+        <!-- 左侧悬浮导航 -->
+        <nav class="floating-nav">
+            <ul class="floating-nav-list">
+                <li class="floating-nav-item">
+                    <a href="#page1" class="floating-nav-link" data-theme="theme1" onclick="scrollToPage('page1'); return false;">
+                        前言
+                    </a>
+                </li>
+                <li class="floating-nav-item">
+                    <a href="#page5" class="floating-nav-link" data-theme="theme2" onclick="scrollToPage('page5'); return false;">
+                        主题一
+                    </a>
+                </li>
+                <li class="floating-nav-item">
+                    <a href="#page10" class="floating-nav-link" data-theme="theme3" onclick="scrollToPage('page10'); return false;">
+                        主题二
+                    </a>
+                </li>
+                <li class="floating-nav-item">
+                    <a href="#page30" class="floating-nav-link" data-theme="theme4" onclick="scrollToPage('page30'); return false;">
+                        主题三
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="gallery-section">
+            <!-- 主题一：今昔发展 -->
+            <div class="photo-page" id="page1" data-theme="theme1">
+                <h2 class="theme-title">前言：今昔发展</h2>
+                <div class="double-photo-vertical compact">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/1.png" alt="照片1">
+                        <p class="photo-caption">郑中健 深圳罗湖福田 20世纪60年代</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/2.png" alt="照片2">
+                        <p class="photo-caption">张燕方 赖雅君 深圳罗湖福田 2018</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第2页：照片3和4横向并列 -->
+            <div class="photo-page" id="page2" data-theme="theme1">
+                <div class="double-photo-horizontal">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/3.png" alt="照片3">
+                        <p class="photo-caption">上：1981年，正在兴建的深圳罗湖商业区 新华社记者杨绍明 摄<br>下：2023年，深圳罗湖区夜色 徐忠镭 摄</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/4.png" alt="照片4">
+                        <p class="photo-caption">上：1984年，深南大道 新华社记者李长永 摄<br>下：2024年，深南大道 毕凯菱 摄</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 第3页：照片5和6横向并列 -->
+            <div class="photo-page" id="page3" data-theme="theme1">
+                <div class="double-photo-horizontal">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/5.png" alt="照片5">
+                        <p class="photo-caption">前海 2009-2024</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/6.png" alt="照片6">
+                        <p class="photo-caption">蛇口半岛 1981-2021</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第4页：照片7和8，上下布局（间距较小） -->
+            <div class="photo-page" id="page4" data-theme="theme1">
+                <div class="double-photo-vertical compact">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/7.png" alt="照片7">
+                        <p class="photo-caption">1983年深圳东门老街，是一个紧邻香港的小镇。地处偏僻，人口不足3万，街面显得冷清。这里是人民路和解放路的交汇口。</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/8.png" alt="照片8">
+                        <p class="photo-caption">2009年的东门，这里已是高楼林立、人头攒动的热闹场所，是深圳购物旅游必去之地，成为深圳的一张名片。<br>周顺斌：深圳四十年的历史变迁——中国摄影家协会网</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主题二：城市化出现的道路交通问题 -->
+            <div class="photo-page" id="page5" data-theme="theme2">
+                    <h2 class="theme-title">主题一：城市化出现的道路交通问题</h2>
+                <!-- 照片9和10，间距较小 -->
+                <div class="double-photo-vertical-compact">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/9.png" alt="照片9">
+                        <p class="photo-caption">吉华街道：下水径地铁站A口附近，摆放有大量电动自行车，现场有工作人员值守——腾讯新闻</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/10.png" alt="照片10">
+                        <p class="photo-caption">坪地街道：在教育南路坪地CCONE附近路段，电动自行车挡住了盲道——腾讯新闻</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 照片11 -->
+            <div class="photo-page" id="page6" data-theme="theme2">
+                <div class="single-photo">
+                    <img src="照片/11.png" alt="照片11">
+                    <p class="photo-caption">在桥南新区育才路附近，流动摊贩随意将小摊停靠在机动车道上——今日头条</p>
+                </div>
+            </div>
+            <!-- 照片12 -->
+            <div class="photo-page" id="page7" data-theme="theme2">
+                <div class="single-photo">
+                    <img src="照片/12.png" alt="照片12">
+                    <p class="photo-caption">龙华地铁站附近违停车辆几乎完全占据人行道“禁停区”绵延数十米，仅剩狭窄通道供行人勉强通行，路面也可见人车混行现象——腾讯新闻</p>
+                </div>
+            </div>
+            <!-- 照片13、14、15特殊布局：13较大居左，14和15较小分别居于右上和右下 -->
+            <div class="photo-page compact-bottom" id="page8" data-theme="theme2">
+                <div class="special-layout-3">
+                    <div class="photo-large">
+                        <img src="照片/13.png" alt="照片13">
+                        <p class="photo-caption">宝安·灵芝 这里的共享单车和电动自行车停放无序、混乱，外卖骑手骑着车扎堆在马路上靠边抢单，机动车道和人行道一样经常堵塞<br>"消失"的深圳人行道——深圳微时光</p>
+                    </div>
+                    <div class="photo-small">
+                        <img src="照片/14.png" alt="照片14">
+                        <p class="photo-caption">这些车辆占用了三分之二的人行道，刚好留下了盲道的宽度，勉强够两位行人并行通过。车停得很满，基本上没有缝隙可以停下更多的电动自行车了，所以有的车也停在了非机动车道上<br>"消失"的深圳人行道——深圳微时光</p>
+                    </div>
+                    <div class="photo-small">
+                        <img src="照片/15.png" alt="照片15">
+                        <p class="photo-caption">摆摊:入侵式占道,确实有人靠夜市街来填饱肚子，也有人认为这增加了深圳的烟火气，但并非途径这条路的所有人都认为这一类地摊有存在的必要——深圳微时光</p>
+                    
+
+                    </div>
+                </div>
+            </div>
+            <!-- 照片16 -->
+            <div class="photo-page" id="page9" data-theme="theme2">
+                <div class="single-photo">
+                    <img src="照片/16.png" alt="照片16">
+                    <p class="photo-caption">石芽岭地铁站A2出口外原本宽敞的人行道，如今已被各类电动自行车“鸠占鹊巢”，仅留下一条狭窄的通道供行人通行，甚至人行通道出入口也常被乱停放的电动自行车堵死，行人出行可谓举步维艰。 ——深圳侨报</p>
+                </div>
+            </div>
+
+            <!-- 主题三：城市景观的空间割裂现象 -->
+            <div class="photo-page" id="page10" data-theme="theme3">
+                <h2 class="theme-title">主题二：城市景观的空间割裂现象</h2>
+                <div class="single-photo">
+                    <img src="照片/17.png" alt="照片17">
+                    <p class="photo-caption">深圳罗湖笋岗村，2004——界面新闻</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page16" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/18.png" alt="照片18">
+                    <p class="photo-caption">这些村域空间有些是历史遗留建筑，如广东特有的客家围屋、碉楼，有些是村民领略城市化的意识，结合自己的村镇意识，自行建造的“四不像”的住宅。村民的城市化意识投射在空间生产上，展现出一种继承与套利的纠结感——2019 光明村楼 秦军校</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page17" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/19.png" alt="照片19">
+                    <p class="photo-caption">深圳 大芬村 2016 许宇涵</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page18" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/20.png" alt="照片20">
+                    <p class="photo-caption">建设中的城中村 深圳 黄贝岭村 2012 郑丽萍</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page19" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/21.png" alt="照片21">
+                    <p class="photo-caption">2010年7月25日，深圳湾红树西岸楼盘外，滨海大道边一座正在施工的高档楼盘工地，一名工人在工棚走道上休息——深圳商报</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page20" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/22.png" alt="照片22">
+                    <p class="photo-caption">远处是深圳的CBD，高达600米的城市地标平安金融大厦像座灯塔照亮了这个城市，密密麻麻的城中村握手楼匍匐在它的脚下。握手楼里万家灯火，生发着无数外来打工者的“深圳梦” 2017 吴国勇</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page21" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/23.png" alt="照片23">
+                    <p class="photo-caption"> 狭小空间里，一对年过七旬的裁缝夫妇，蜗居在一楼出租屋——深圳晚报</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page22" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/24.png" alt="照片24">
+                    <p class="photo-caption">"旧"与"新"，宝罗小区（右）刚刚完成改造——宝安湾</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page23" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/25.png" alt="照片25">
+                    <p class="photo-caption">深圳内区白石洲城镇的航拍图。“村庄”这个词或许不太适合用来形容一群可容纳超过10万人的廉租式步行楼——Alexander Walter</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page24" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/26.png" alt="照片26">
+                    <p class="photo-caption">俯瞰密密麻麻的城中村建筑物——搜狐新闻</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page25" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/27.png" alt="照片27">
+                    <p class="photo-caption">蔡屋围村所在的片区是罗湖金融中心，这个城中村与对面的摩天大楼、金融商圈，几乎只有一步之遥——深圳百事通</p>
+                </div>
+            </div>
+
+            <!-- 第26页：照片28-34，小正方形错落分布 -->
+            <div class="photo-page" id="page26" data-theme="theme3">
+                <div class="masonry-grid">
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/28.png" alt="照片28"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/29.png" alt="照片29"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/30.png" alt="照片30"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/31.png" alt="照片31"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/32.png" alt="照片32"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/33.png" alt="照片33"></div>
+                    </div>
+                    <div class="masonry-item-wrapper">
+                        <div class="masonry-item"><img src="照片/34.png" alt="照片34"></div>
+                    </div>
+                    <p class="photo-caption masonry-grid-shared-caption"> 人口的极速增长成为深圳的一大特征，与此同时房屋居住的需求日益剧增，此时，租金较低的城中村成为了来深建设者的第一居住首选，城中村应运而生  陈建华</p>
+                </div>
+            </div>
+
+            <!-- 第27页：单张展示照片35 -->
+            <div class="photo-page" id="page27" data-theme="theme3">
+                <div class="single-photo">
+                    <img src="照片/35.png" alt="照片35">
+                    <p class="photo-caption">改造前的城中村"握手楼"</p>
+                </div>
+            </div>
+            <!-- 第28页：照片36和37横向排列 -->
+            <div class="photo-page" id="page28" data-theme="theme3">
+                <div class="double-photo-horizontal">
+                    <div class="photo-item-wrapper">
+                        <img src="照片/36.png" alt="照片36">
+                        <p class="photo-caption">穿行在潮湿逼仄的巷道中，初来乍到的人小心翼翼城</p>
+                    </div>
+                    <div class="photo-item-wrapper">
+                        <img src="照片/37.png" alt="照片37">
+                        <p class="photo-caption">城中村低廉的租金、带来了便利的生活</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主题四：底层劳动者的现实——于夹缝之地求存 -->
+            <div class="photo-page" id="page30" data-theme="theme4">
+                <h2 class="theme-title">主题三：底层劳动者的现实——于夹缝之地求存</h2>
+                <!-- 照片38、39、40特殊布局：38居左，39右上，40右下 -->
+                <div class="special-layout-3">
+                    <div class="photo-large">
+                        <img src="照片/38.png" alt="照片38">
+                        <p class="photo-caption">打工者的宿舍 那时候的工人普遍住宿在狭小拥挤的宿舍里 （1988）</p>
+                    </div>
+                    <div class="photo-small">
+                        <img src="照片/39.png" alt="照片39">
+                        <p class="photo-caption">深圳某工厂宿舍 工人们的衣服被随意的摆在宿舍楼外晾晒</p>
+                    </div>
+                    <div class="photo-small">
+                        <img src="照片/40.png" alt="照片40">
+                        <p class="photo-caption">深圳某工厂宿舍 一个寝室住着至少8个工人</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第32-35页：单张展示照片41-44 -->
+            <div class="photo-page" id="page32" data-theme="theme4">
+                <div class="single-photo">
+                    <img src="照片/41.png" alt="照片41">
+                    <p class="photo-caption">早期刚进城农民工的居住环境 农村包围城市（屋内） 张新民</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page33" data-theme="theme4">
+                <div class="single-photo">
+                    <img src="照片/42.png" alt="照片42">
+                    <p class="photo-caption">老旧屋内，一个女人正在卫生间里洗漱——深圳围 秦军校</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page34" data-theme="theme4">
+                <div class="single-photo">
+                    <img src="照片/43.png" alt="照片43">
+                    <p class="photo-caption">白石洲，位于深圳市南山区沙河街道，横跨深南大道南北，是深圳规模最大的城中村之一，曾聚居超15万外来人口，被称为“深漂第一站”2018 秦军校</p>
+                </div>
+            </div>
+            <div class="photo-page" id="page35" data-theme="theme4">
+                <div class="single-photo">
+                    <img src="照片/44.png" alt="照片44">
+                    <p class="photo-caption">LGBTQ在全球都是城市化的标志之一。在宽容的城市，他们会发声大一点，在压抑的城市，他们会声音小一点。他·她，2002-2018 贾玉川</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 进入影集
+        function enterGallery() {
+            const coverPage = document.getElementById('cover-page');
+            coverPage.classList.add('hidden');
+            
+            setTimeout(() => {
+                coverPage.style.display = 'none';
+                document.getElementById('toc-page').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 800);
+        }
+
+        // 返回目录页
+        function backToToc() {
+            document.getElementById('gallery-page').style.display = 'none';
+            document.getElementById('toc-page').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 返回封面页
+        function backToCover() {
+            document.getElementById('toc-page').style.display = 'none';
+            const coverPage = document.getElementById('cover-page');
+            coverPage.classList.remove('hidden');
+            coverPage.style.display = 'flex';
+            coverPage.style.opacity = '1';
+            coverPage.style.visibility = 'visible';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 滚动到主题
+        function scrollToTheme(themeId) {
+            const themeMap = {
+                'theme1': 'page1',
+                'theme2': 'page5',
+                'theme3': 'page10',
+                'theme4': 'page30'
+            };
+            
+            const targetPage = document.getElementById(themeMap[themeId]);
+            if (targetPage) {
+                document.getElementById('toc-page').style.display = 'none';
+                document.getElementById('gallery-page').style.display = 'block';
+                
+                setTimeout(() => {
+                    targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    updateActiveNav(themeId);
+                }, 100);
+            }
+        }
+
+        // 滚动到指定页面
+        function scrollToPage(pageId) {
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const theme = targetPage.getAttribute('data-theme');
+                if (theme) {
+                    updateActiveNav(theme);
+                }
+            }
+        }
+
+        // 进入相册
+        function scrollToGallery() {
+            document.getElementById('toc-page').style.display = 'none';
+            document.getElementById('gallery-page').style.display = 'block';
+            
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                updateActiveNav('theme1');
+            }, 100);
+        }
+
+        // 更新活动导航项
+        function updateActiveNav(activeTheme) {
+            document.querySelectorAll('.floating-nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-theme') === activeTheme) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // 滚动时自动更新活动导航项
+        function handleScroll() {
+            const pages = document.querySelectorAll('.photo-page[data-theme]');
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+            
+            let currentTheme = 'theme1';
+            for (let i = pages.length - 1; i >= 0; i--) {
+                const page = pages[i];
+                const pageTop = page.offsetTop;
+                const pageBottom = pageTop + page.offsetHeight;
+                
+                if (scrollPosition >= pageTop && scrollPosition <= pageBottom) {
+                    currentTheme = page.getAttribute('data-theme');
+                    break;
+                }
+            }
+            
+            updateActiveNav(currentTheme);
+        }
+
+        // 监听滚动事件
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(handleScroll, 100);
+        });
+
+        // 图片加载错误处理
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                    console.log('图片加载失败:', this.src);
+                });
+            });
+
+            // 为所有照片添加点击放大功能
+            const photoImages = document.querySelectorAll('img[src*="照片/"]');
+            console.log('找到照片数量:', photoImages.length);
+            photoImages.forEach(img => {
+                img.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const imgSrc = this.src || this.getAttribute('src');
+                    console.log('点击图片，路径:', imgSrc);
+                    openImageModal(imgSrc);
+                });
+            });
+
+            // 阻止模态框内容点击时关闭（只关闭背景）
+            const modalImg = document.getElementById('modalImage');
+            if (modalImg) {
+                modalImg.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+
+        // 图片放大查看功能
+        function openImageModal(imgSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            if (!modal || !modalImg) {
+                console.error('模态框元素未找到');
+                return;
+            }
+            
+            // 确保使用正确的图片路径
+            console.log('打开模态框，图片路径:', imgSrc);
+            modalImg.src = imgSrc;
+            modalImg.style.display = 'block';
+            modalImg.style.opacity = '1';
+            modalImg.style.visibility = 'visible';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+            
+            // 添加加载错误处理
+            modalImg.onerror = function() {
+                console.error('图片加载失败:', imgSrc);
+                console.error('尝试的路径:', this.src);
+                alert('图片加载失败，请检查路径: ' + imgSrc);
+            };
+            
+            // 确保图片加载完成后显示
+            modalImg.onload = function() {
+                console.log('图片加载成功:', imgSrc);
+                this.style.display = 'block';
+                this.style.opacity = '1';
+            };
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // 恢复滚动
+            }
+        }
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
+</body>
+</html>
